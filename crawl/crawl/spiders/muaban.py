@@ -1,20 +1,26 @@
 
+import time
 import scrapy
+import pandas as pd
 from scrapy.crawler import CrawlerProcess
 from scrapy.http.response.html import HtmlResponse
 from bs4 import BeautifulSoup
-from util import make_request
+from util import *
 
 
 class MuaBanSpider(scrapy.Spider):
     def __init__(self, name="muabn-spider", **kwargs):
         self.base_url = 'https://muaban.net'
         self.data = []
+        self.name = name
 
     def start_requests(self):
-        # for i in range(1, 30):
-
-        for i in range(1, 2):
+        data = make_request(
+            self.base_url+f"/listing/v1/classifieds/listing?category_id=35&limit=1")
+        total = data.get("total")
+        i = 20
+        while i < total:
+            time.sleep(0.2)
             data = make_request(
                 self.base_url+f"/listing/v1/classifieds/listing?category_id=35&limit=20&offset={i}")
             if data is None:
@@ -25,34 +31,62 @@ class MuaBanSpider(scrapy.Spider):
                 url = prod.get("url")
                 if url is None:
                     continue
-                # time.sleep(0.05)
+                time.sleep(0.05)
                 yield scrapy.Request(
                     url=self.base_url+url,
                     callback=self.parse_data,
+                    meta={"name": prod.get("title"), "price": prod.get("price")}
                 )
+            i += 20
 
     def parse_data(self, response: HtmlResponse):
         html = BeautifulSoup(response.text, "lxml")
-        name = html.find("div", class_="klItbj").find("h1").text
-        price = html.find("div", class_="klItbj").find("div", class_="price").text
-        address = html.find("div", class_="klItbj").find("div", class_="address").text
+        base_info = html.find("div", class_="klItbj")
+        data = {
+            "name": response.request.meta["name"],
+            "price": response.request.meta["price"],
+            "address": "",
+            "information": {},
+            "url": response.url
+        }
+        if base_info is not None:
+            if data["name"] == "" and base_info.find("h1") is not None:
+                data["name"] = base_info.find("h1").getText()
+            if data["price"] == "" and base_info.find("div", class_="price") is not None:
+                data["price"] = base_info.find("div", class_="price").getText()
+            if base_info.find("div", class_="address") is not None:
+                data["address"] = base_info.find(
+                    "div", class_="address").getText()
 
-        # brand = html.find("div", class_="gqfnhz").find("span").text
-        # vehicle = html.find("div", class_="eShBuU").find("span").text
-        # status = html.find("div", class_="jSMHJP").find("span").text
-        # type = html.find("div", class_="neMoc").find("span").text
-        # capacity = html.find("div", class_="jJIaaY").find("span").text
-        # color = html.find("div", class_="fyjlpY").find("span").text
-        # source = html.find("div", class_="iMdtLg").find("span").text
-        # used = html.find("div", class_="kFRjSs").find("span").text
-        # year_register = html.find("div", class_="bjnWfw").find("span").text
-        
-        print(name, price, address)
-        # , brand, vehicle, status, type, capacity, color, source, used, year_register)
-        # bắn kafka
+        information = html.find("ul", class_="hhzOAT")
+        if information is not None:
+            infos = information.findAll("li")
+            for info in infos:
+                key, value = info.getText().split(":")
+                data["information"][key] = value
+
+        self.data.append(data)
+        # producer_send(self.name, data)
 
     def closed(self, reason):
-        pass
+        print(reason)
+        data = {
+            "name": [],
+            "price": [],
+            "address": [],
+            "information": [],
+            "url": []
+        }
+        for i in self.data:
+            data["name"].append(i["name"])
+            data["price"].append(i["price"])
+            data["address"].append(i["address"])
+            data["information"].append(json.dumps(
+                i["information"], ensure_ascii=False))
+            data["url"].append(i["url"])
+        pd.DataFrame(data).to_excel(
+            f"./data/muaban.xlsx", index=False, sheet_name="data")
+        return
 
 
 def main() -> None:
