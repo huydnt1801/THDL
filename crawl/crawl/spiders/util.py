@@ -1,6 +1,12 @@
 import requests
 import json
 from kafka import KafkaProducer
+import pandas as pd
+
+
+def load_setting(file_path):
+    data_frame = pd.read_excel(file_path)
+    return data_frame
 
 
 def make_request(url):

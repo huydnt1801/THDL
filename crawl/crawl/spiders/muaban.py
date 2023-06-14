@@ -9,7 +9,7 @@ from util import *
 
 
 class MuaBanSpider(scrapy.Spider):
-    def __init__(self, name="muabn-spider", **kwargs):
+    def __init__(self, name="muaban", **kwargs):
         self.base_url = 'https://muaban.net'
         self.data = []
         self.name = name
@@ -66,7 +66,7 @@ class MuaBanSpider(scrapy.Spider):
                 data["information"][key] = value
 
         self.data.append(data)
-        # producer_send(self.name, data)
+        producer_send(self.name, data)
 
     def closed(self, reason):
         print(reason)

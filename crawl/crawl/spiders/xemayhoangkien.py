@@ -9,13 +9,17 @@ from util import *
 
 
 class XeMayHoangKienSpider(scrapy.Spider):
-    def __init__(self, name="xemayhoangkien-spider", **kwargs):
+    def __init__(self, name="xemayhoangkien", **kwargs):
         self.base_url = 'https://xemayhoangkien.com'
         self.data = []
         self.name = name
 
     def start_requests(self):
-        for i in range(1, 29):
+        html = BeautifulSoup(requests.get("https://xemayhoangkien.com/all").text, "lxml")
+        count_text = html.find("p", class_="result-count").getText()
+        count = int(count_text.strip().split(' ')[2])
+        max_page = count // 28 + 1
+        for i in range(1, max_page):
             time.sleep(0.05)
             yield scrapy.Request(
                 url=f'https://xemayhoangkien.com/all?page={i}',
@@ -56,7 +60,7 @@ class XeMayHoangKienSpider(scrapy.Spider):
                     data["information"][key] = val
 
         self.data.append(data)
-        # bắn kafka
+        producer_send(self.name, data)
 
     def closed(self, reason):
         print(reason)
