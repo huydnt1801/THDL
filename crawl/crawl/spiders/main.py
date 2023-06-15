@@ -2,6 +2,7 @@ from scrapy.crawler import CrawlerProcess
 from apscheduler.schedulers.twisted import TwistedScheduler
 from muaban import MuaBanSpider
 from xemayhoangkien import XeMayHoangKienSpider
+from webike import WeBikeSpider
 
 process = CrawlerProcess()
 
@@ -9,6 +10,7 @@ process = CrawlerProcess()
 def start_crawl():
     process.crawl(MuaBanSpider)
     process.crawl(XeMayHoangKienSpider)
+    process.crawl(WeBikeSpider)
 
 
 start_crawl()

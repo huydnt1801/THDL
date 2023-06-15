@@ -62,7 +62,7 @@ class WeBikeSpider(scrapy.Spider):
                         data["information"][key.getText().strip()] = val
 
         self.data.append(data)
-        # producer_send(self.name, data)
+        producer_send(self.name, data)
 
     def closed(self, reason):
         print(reason)
