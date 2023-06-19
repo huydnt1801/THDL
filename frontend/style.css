@@ -1,0 +1,25 @@
+nav {
+  background-color: #f8f9fa;
+}
+
+.navbar {
+  background-color: #f8f9fa;
+  font-size: 20px;
+  padding: 10px;
+}
+
+.navbar-brand {
+  font-weight: bold;
+  font-size: 30px;
+  color: #333;
+}
+
+.search-form {
+  display: flex;
+  align-items: center;
+}
+
+.display-5 {
+  font-size: xx-large;
+  font-weight: bold;
+}
