@@ -47,7 +47,8 @@ class XeMayHoangKienSpider(scrapy.Spider):
             "price": "",
             "address": "",
             "information": {},
-            "url": response.url
+            "url": response.url,
+            "image_url": "",
         }
         if form is not None:
             data["name"] = form.find("h1").getText()
@@ -58,9 +59,12 @@ class XeMayHoangKienSpider(scrapy.Spider):
                 for info in infos:
                     key, val = process_string(info.getText()).split(":")
                     data["information"][key] = val
+        
+        if html.find("img", class_="sp-image") is not None:
+            data["image_url"] = html.find("img", class_="sp-image")["src"]
 
         self.data.append(data)
-        producer_send(self.name, data)
+        # producer_send(self.name, data)
 
     def closed(self, reason):
         print(reason)
@@ -69,7 +73,8 @@ class XeMayHoangKienSpider(scrapy.Spider):
             "price": [],
             "address": [],
             "information": [],
-            "url": []
+            "url": [],
+            "image_url": [],
         }
         for i in self.data:
             data["name"].append(i["name"])
@@ -78,6 +83,7 @@ class XeMayHoangKienSpider(scrapy.Spider):
             data["information"].append(json.dumps(
                 i["information"], ensure_ascii=False))
             data["url"].append(i["url"])
+            data["image_url"].append(i["image_url"])
         pd.DataFrame(data).to_excel(
             f"./data/xemayhoangkien.xlsx", index=False, sheet_name="data")
         return

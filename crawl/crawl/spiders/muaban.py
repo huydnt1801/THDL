@@ -47,7 +47,8 @@ class MuaBanSpider(scrapy.Spider):
             "price": response.request.meta["price"],
             "address": "",
             "information": {},
-            "url": response.url
+            "url": response.url,
+            "image_url": ""
         }
         if base_info is not None:
             if data["name"] == "" and base_info.find("h1") is not None:
@@ -57,6 +58,9 @@ class MuaBanSpider(scrapy.Spider):
             if base_info.find("div", class_="address") is not None:
                 data["address"] = base_info.find(
                     "div", class_="address").getText()
+            if data["image_url"] == "" and html.find("div", class_="kzipBv") is not None:
+                link = html.find("div", class_="kzipBv")
+                data["image_url"] = link.find("img")['src']
 
         information = html.find("ul", class_="hhzOAT")
         if information is not None:
@@ -66,7 +70,7 @@ class MuaBanSpider(scrapy.Spider):
                 data["information"][key] = value
 
         self.data.append(data)
-        producer_send(self.name, data)
+        # producer_send(self. name, data)
 
     def closed(self, reason):
         print(reason)
@@ -75,7 +79,8 @@ class MuaBanSpider(scrapy.Spider):
             "price": [],
             "address": [],
             "information": [],
-            "url": []
+            "url": [],
+            "image_url": [],
         }
         for i in self.data:
             data["name"].append(i["name"])
@@ -84,6 +89,7 @@ class MuaBanSpider(scrapy.Spider):
             data["information"].append(json.dumps(
                 i["information"], ensure_ascii=False))
             data["url"].append(i["url"])
+            data["image_url"].append(i["image_url"])
         pd.DataFrame(data).to_excel(
             f"./data/muaban.xlsx", index=False, sheet_name="data")
         return
