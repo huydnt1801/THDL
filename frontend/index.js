@@ -78,46 +78,50 @@ function changePage(page) {
 
 function getHTML(motobike) {
   var price = formatCash(String(motobike.price));
+  let imageItem = "";
+  if (motobike.imageUrl !== undefined && motobike.imageUrl != "-") {
+    imageItem = `<img src="${motobike.imageUrl}" class="card-img-top" alt="Image">`
+  }
   let addressItem = '';
-  if (motobike.address !== undefined) {
+  if (motobike.address !== undefined && motobike.address != "-") {
     addressItem = `<li class="list-group-item"><span>Địa chỉ: </span>${motobike.address}</li>`;
   }
   let registerYearItem = '';
-  if (motobike.registerYear !== undefined) {
+  if (motobike.registerYear !== undefined && motobike.registerYear != "-") {
     registerYearItem = `<li class="list-group-item"><span>Năm đăng ký: </span>${motobike.registerYear}</li>`;
   }
   let statusItem = '';
-  if (motobike.status !== undefined) {
+  if (motobike.status !== undefined && motobike.status != "-") {
     statusItem = `<li class="list-group-item"><span>Trạng thái: </span>${motobike.status}</li>`;
   }
   let typeItem = '';
-  if (motobike.type !== undefined) {
+  if (motobike.type !== undefined && motobike.type != "-") {
     typeItem = `<li class="list-group-item"><span>Loại xe: </span>${motobike.type}</li>`;
   }
   let capacityItem = '';
-  if (motobike.capacity !== undefined) {
+  if (motobike.capacity !== undefined && motobike.capacity != "-") {
     capacityItem = `<li class="list-group-item"><span>Dung tích: </span>${motobike.capacity}</li>`;
   }
   let originItem = '';
-  if (motobike.origin !== undefined) {
+  if (motobike.origin !== undefined && motobike.origin != "-") {
     originItem = `<li class="list-group-item"><span>Xuất xứ: </span>${motobike.origin}</li>`;
   }
   let colorItem = '';
-  if (motobike.color !== undefined) {
+  if (motobike.color !== undefined && motobike.color != "-") {
     colorItem = `<li class="list-group-item"><span>Màu sắc: </span>${motobike.color}</li>`;
   }
   let vehicleTypeItem = '';
-  if (motobike.vehicleType !== undefined) {
+  if (motobike.vehicleType !== undefined && motobike.vehicleType != "-") {
     vehicleTypeItem = `<li class="list-group-item"><span>Dòng xe: </span>${motobike.vehicleType}</li>`;
   }
   let kmItem = '';
-  if (motobike.km !== undefined) {
+  if (motobike.km !== undefined && motobike.km != "-") {
     kmItem = `<li class="list-group-item"><span>Số km đã đi: </span>${motobike.km}</li>`;
   }
   return `
   <div class="col-12 col-sm-6 col-md-4 margin">
     <div class="card shadow-sm p-3 mb-5 bg-white rounded" style = "width: 18rem;">
-      <img src="${motobike.image_url}" class="card-img-top" alt="Image">
+      ${imageItem}
       <div class="card-body">
         <h6 class="card-title">${motobike.name}</h6>
         <ul class="list-group list-group-flush">
