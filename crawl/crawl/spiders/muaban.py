@@ -17,7 +17,8 @@ class MuaBanSpider(scrapy.Spider):
     def start_requests(self):
         data = make_request(
             self.base_url+f"/listing/v1/classifieds/listing?category_id=35&limit=1")
-        total = data.get("total")
+        # total = data.get("total")
+        total = 25
         i = 20
         while i < total:
             time.sleep(0.2)
@@ -70,7 +71,7 @@ class MuaBanSpider(scrapy.Spider):
                 data["information"][key] = value
 
         self.data.append(data)
-        # producer_send(self. name, data)
+        producer_send(self.name, data)
 
     def closed(self, reason):
         print(reason)
@@ -90,8 +91,8 @@ class MuaBanSpider(scrapy.Spider):
                 i["information"], ensure_ascii=False))
             data["url"].append(i["url"])
             data["image_url"].append(i["image_url"])
-        pd.DataFrame(data).to_excel(
-            f"./data/muaban.xlsx", index=False, sheet_name="data")
+        # pd.DataFrame(data).to_excel(
+        #     f"./data/muaban.xlsx", index=False, sheet_name="data")
         return
 
 

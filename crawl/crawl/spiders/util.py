@@ -26,6 +26,7 @@ def serializer(message):
 def producer_send(topic, data):
     producer = KafkaProducer(
         bootstrap_servers=['localhost:9092'],
+        api_version=(0,11,5),
         value_serializer=serializer
     )
     producer.send(topic, data)

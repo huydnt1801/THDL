@@ -11,6 +11,7 @@ from util import *
 class OkXeSpider(scrapy.Spider):
     def __init__(self, name="muaban", **kwargs):
         self.base_url = 'https://api.okxe.vn'
+        self.web_url = 'https://www.okxe.vn'
         self.data = []
         self.name = name
 
@@ -48,7 +49,7 @@ class OkXeSpider(scrapy.Spider):
             "price": product["price"],
             "address": "",
             "information": {},
-            "url": self.base_url + f"/products/{product.get('bike_slug')}-{product.get('id')}"
+            "url": self.web_url + f"/products/{product.get('bike_slug')}-{product.get('id')}"
         }
 
         data["information"]["brand"] = product['brand'].get('name')
