@@ -1,8 +1,22 @@
 var Render = new (function __Render() {
   this.init = function () {
     var motobikes = [];
+    var total = 0;
+    const urlParams = new URLSearchParams(window.location.search);
+    const myParam = urlParams.get('page');
+    var i = 1;
+    if (myParam != undefined) {
+      i = parseInt(myParam, 10);
+    }
     $.ajax({
-    	url: 'http://127.0.0.1:5000/api/list',
+    	url: 'http://127.0.0.1:5000/api/total',
+    	success: function (data) {
+        total = Math.ceil(data / 18);
+    	},
+    	async: false
+    });
+    $.ajax({
+    	url: 'http://127.0.0.1:5000/api/list?page=' + i,
     	success: function (data) {
         data.forEach(function (dat) {
           motobikes.push(dat);
@@ -10,6 +24,22 @@ var Render = new (function __Render() {
     	},
     	async: false
     });
+    if (i > 78) {
+      i = 1;
+    }
+    var pag = "";
+    var j = 0;
+    while (j < 2) {
+      pag += `<li onclick="changePage(${i+j})"><a>${i+j}</a></li>`
+      j++;
+    };
+    pag += `<li><a>...</a></li>`;
+    var i = 1;
+    while (i >= 0) {
+      pag += `<li onclick="changePage(${total-i})"><a>${total-i}</a></li>`
+      i--;
+    };
+    $("#pagination").html(pag);
 
     return motobikes;
   };
@@ -24,28 +54,69 @@ var Render = new (function __Render() {
   };
 })();
 
+function changePage(page) {
+  var url = new URL(window.location.href);
+  url.searchParams.set('page', page);
+  window.location.href = url.href;
+}
+
 function getHTML(motobike) {
   var price = formatCash(String(motobike.price));
+  let addressItem = '';
+  if (motobike.address !== undefined) {
+    addressItem = `<li class="list-group-item"><span>Địa chỉ: </span>${motobike.address}</li>`;
+  }
+  let registerYearItem = '';
+  if (motobike.registerYear !== undefined) {
+    registerYearItem = `<li class="list-group-item"><span>Năm đăng ký: </span>${motobike.registerYear}</li>`;
+  }
+  let statusItem = '';
+  if (motobike.status !== undefined) {
+    statusItem = `<li class="list-group-item"><span>Trạng thái: </span>${motobike.status}</li>`;
+  }
+  let typeItem = '';
+  if (motobike.type !== undefined) {
+    typeItem = `<li class="list-group-item"><span>Loại xe: </span>${motobike.type}</li>`;
+  }
+  let capacityItem = '';
+  if (motobike.capacity !== undefined) {
+    capacityItem = `<li class="list-group-item"><span>Dung tích: </span>${motobike.capacity}</li>`;
+  }
+  let originItem = '';
+  if (motobike.origin !== undefined) {
+    originItem = `<li class="list-group-item"><span>Xuất xứ: </span>${motobike.origin}</li>`;
+  }
+  let colorItem = '';
+  if (motobike.color !== undefined) {
+    colorItem = `<li class="list-group-item"><span>Màu sắc: </span>${motobike.color}</li>`;
+  }
+  let vehicleTypeItem = '';
+  if (motobike.vehicleType !== undefined) {
+    vehicleTypeItem = `<li class="list-group-item"><span>Dòng xe: </span>${motobike.vehicleType}</li>`;
+  }
+  let kmItem = '';
+  if (motobike.km !== undefined) {
+    kmItem = `<li class="list-group-item"><span>Số km đã đi: </span>${motobike.km}</li>`;
+  }
   return `
   <div class="col-12 col-sm-6 col-md-4 margin">
     <div class="card shadow-sm p-3 mb-5 bg-white rounded" style = "width: 18rem;">
       <img src="${motobike.image_url}" class="card-img-top" alt="Image">
       <div class="card-body">
-        <h2 class="card-title">${motobike.name}</h2>
+        <h6 class="card-title">${motobike.name}</h6>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item"><span>Địa chỉ: </span>${motobike.address}</li>
-          <li class="list-group-item"><span>Năm đăng ký: </span>${motobike.registerYear}</li>
-          <li class="list-group-item"><span>Trạng thái: </span>${motobike.status}</li>
-          <li class="list-group-item"><span>Loại xe: </span>${motobike.type}</li>
-          <li class="list-group-item"><span>Dung tích: </span>${motobike.capacity}</li>
-          <li class="list-group-item"><span>Xuất xứ: </span>${motobike.origin}</li>
-          <li class="list-group-item"><span>Màu: </span>${motobike.color}</li>
-          <li class="list-group-item"><span>Dòng xe: </span>${motobike.vehicleType}</li>
-          <li class="list-group-item"><span>Số km đã đi: </span>${motobike.km}</li>
+          ${addressItem}
+          ${registerYearItem}
+          ${statusItem}
+          ${typeItem}
+          ${capacityItem}
+          ${colorItem}
+          ${vehicleTypeItem}
+          ${kmItem}
         </ul>
       </div>
       <div class="text-center">
-        <p class="card-footer display-5"><span >Giá: </span>${motobike.price}</p>
+        <p class="card-footer display-5"><span >Giá: </span>${price}</p>
         <a href="${motobike.url}" class="btn btn-primary">Mua</a>
       </div>
     </div>
