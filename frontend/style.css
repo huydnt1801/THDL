@@ -20,10 +20,22 @@ nav {
 }
 
 .display-5 {
-  font-size: xx-large;
+  font-size: large;
   font-weight: bold;
 }
 
 .list-group-item {
   padding: 3px;
+}
+
+.pagination a {
+  padding: 0 5px;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 10px;
+  margin-bottom: 100px;
 }
