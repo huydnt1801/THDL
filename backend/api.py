@@ -1,9 +1,6 @@
 from flask import Flask, request, jsonify
-from flask.wrappers import Response
 from flask_cors import CORS
 from flask_cors.decorator import cross_origin
-from controller import BL
-import json
 import pandas as pd
 
 app = Flask(__name__)
@@ -15,21 +12,17 @@ def getMotors():
     r = request
     r = r.args
     name = r.get("name")
-    maxPrice = r.get("maxPrice")
-    minPrice = r.get("minPrice")
+    maxPrice = int(r.get("maxPrice"))
+    minPrice = int(r.get("minPrice"))
     if name == None:
         name = ""
     if maxPrice == None:
-        maxPrice = ""
+        maxPrice = 100000000000000
     if minPrice == None:
-        minPrice = ""
-    bl = BL()
-    result = bl.filter(name, maxPrice, maxPrice)
-    result = {
-        "test": "test api"
-    }
-    result = json.dumps(result, ensure_ascii=False)
-    return Response(response=result, status=200, mimetype="application/json")
+        minPrice = 0
+    data = pd.read_csv('../final_data.csv')
+    result = data[(data['price'] >= minPrice) & (data['price'] <= maxPrice) & (data['name'].str.contains(name, case=False))]
+    return jsonify(result.to_dict(orient='records')), 200
 
 @app.route("/api/list", methods=['GET'])
 @cross_origin()
@@ -37,19 +30,18 @@ def getAll():
     r = request
     r = r.args
     page = int(r.get("page"))
-    data = pd.read_csv('../crawl/crawl/spiders/all_data/muaban.csv')
-    print(page)
+    data = pd.read_csv('../final_data.csv')
     idx = (page - 1) * 18
-    print(idx)
     data = data[idx: idx + 18]
-    return jsonify(data.to_dict(orient='records'))
+    data = data.to_dict(orient='records')
+    return jsonify(data), 200
 
 @app.route("/api/total", methods=['GET'])
 @cross_origin()
 def getTotal():
-    data = pd.read_csv('../crawl/crawl/spiders/all_data/muaban.csv')
+    data = pd.read_csv('../final_data.csv')
     l = len(data)
-    return jsonify(l)
+    return jsonify(l), 200
 
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5000)

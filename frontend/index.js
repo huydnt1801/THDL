@@ -1,30 +1,21 @@
 var Render = new (function __Render() {
-  this.init = function () {
-    var motobikes = [];
-    var total = 0;
+  this.total = function (){
     const urlParams = new URLSearchParams(window.location.search);
     const myParam = urlParams.get('page');
     var i = 1;
     if (myParam != undefined) {
       i = parseInt(myParam, 10);
     }
+    var t = 0;
     $.ajax({
+      type: 'GET',
     	url: 'http://127.0.0.1:5000/api/total',
     	success: function (data) {
-        total = Math.ceil(data / 18);
+        t = Math.ceil(data / 18);
     	},
     	async: false
     });
-    $.ajax({
-    	url: 'http://127.0.0.1:5000/api/list?page=' + i,
-    	success: function (data) {
-        data.forEach(function (dat) {
-          motobikes.push(dat);
-        });
-    	},
-    	async: false
-    });
-    if (i > 78) {
+    if (i > t - 4) {
       i = 1;
     }
     var pag = "";
@@ -36,10 +27,35 @@ var Render = new (function __Render() {
     pag += `<li><a>...</a></li>`;
     var i = 1;
     while (i >= 0) {
-      pag += `<li onclick="changePage(${total-i})"><a>${total-i}</a></li>`
+      pag += `<li onclick="changePage(${t-i})"><a>${t-i}</a></li>`
       i--;
     };
     $("#pagination").html(pag);
+  }
+  this.init = function () {
+    var motobikes = [];
+    const urlParams = new URLSearchParams(window.location.search);
+    const myParam = urlParams.get('page');
+    var i = 1;
+    if (myParam != undefined) {
+      i = parseInt(myParam, 10);
+    }
+    $.ajax({
+      type: 'GET',
+    	url: 'http://127.0.0.1:5000/api/list?page=' + i,
+      contentType: 'application/json',
+      dataType: 'json',
+      complete: function(data) {
+        console.log(data);
+      },
+    	success: function (data) {
+        console.log(data);
+        data.forEach(function (dat) {
+          motobikes.push(dat);
+        });
+    	},
+    	async: false
+    });
 
     return motobikes;
   };
@@ -110,6 +126,7 @@ function getHTML(motobike) {
           ${statusItem}
           ${typeItem}
           ${capacityItem}
+          ${originItem}
           ${colorItem}
           ${vehicleTypeItem}
           ${kmItem}
@@ -141,7 +158,7 @@ $("#search-btn").on("click", function () {
   var max_price = parseInt($("#max-price").val() + "000000");
   var motobikes = [];
   $.ajax({
-    url: 'http://127.0.0.1:5000/api/search?name=' + name + '&min_price=' + min_price + '&max_price=' + max_price,
+    url: 'http://127.0.0.1:5000/api/search?name=' + name + '&minPrice=' + min_price + '&maxPrice=' + max_price,
     success: function (data) {
       data.forEach(function (dat) {
         motobikes.push(dat);
@@ -152,5 +169,6 @@ $("#search-btn").on("click", function () {
   Render.cards(motobikes);
 });
 
+Render.total();
 var motobikes = Render.init();
 Render.cards(motobikes);
