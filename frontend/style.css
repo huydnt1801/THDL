@@ -23,3 +23,7 @@ nav {
   font-size: xx-large;
   font-weight: bold;
 }
+
+.list-group-item {
+  padding: 3px;
+}

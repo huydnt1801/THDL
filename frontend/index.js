@@ -1,63 +1,17 @@
-const data = [
-  {
-    brand: "hãng xe",
-    samples: [
-      {
-        name: "tên",
-        price: "1000",
-        address: "địa chỉ",
-        url: "link gốc",
-        registerYear: "năm đăng ký",
-        status: "mới",
-        type: "loại xe",
-        capacity: "dung tích xe máy",
-        origin: "xuất xứ",
-        color: "màu xe",
-        vehicleType: "dòng xe",
-        km: "số km đã đi",
-      },
-      {
-        name: "tên",
-        price: "1000",
-        address: "địa chỉ",
-        url: "link gốc",
-        registerYear: "năm đăng ký",
-        status: "mới",
-        type: "loại xe",
-        capacity: "dung tích xe máy",
-        origin: "xuất xứ",
-        color: "màu xe",
-        vehicleType: "dòng xe",
-        km: "số km đã đi",
-      },
-    ],
-  },
-];
-
 var Render = new (function __Render() {
   this.init = function () {
     var motobikes = [];
-    var categories = [];
-    // $.ajax({
-    // 	url: 'http://127.0.0.1:5000/api/list',
-    // 	success: function (data) {
-    // 		data.forEach(function (category) {
-    // 			categories.push(category.brand);
-    // 			category.samples.forEach(function (motobike) {
-    // 				motobikes.push(motobike);
-    // 			});
-    // 		});
-    // 	},
-    // 	async: false
-    // });
-    data.forEach(function (category) {
-      categories.push(category.brand);
-      category.samples.forEach(function (motobike) {
-        motobikes.push(motobike);
-      });
+    $.ajax({
+    	url: 'http://127.0.0.1:5000/api/list',
+    	success: function (data) {
+        data.forEach(function (dat) {
+          motobikes.push(dat);
+        });
+    	},
+    	async: false
     });
 
-    return [categories, motobikes];
+    return motobikes;
   };
 
   this.cards = function (motobikes) {
@@ -74,7 +28,7 @@ function getHTML(motobike) {
   var price = formatCash(String(motobike.price));
   return `
   <div class="col-12 col-sm-6 col-md-4 margin">
-    <div class=""card shadow-sm p-3 mb-5 bg-white rounded" style = "width: 18rem;">
+    <div class="card shadow-sm p-3 mb-5 bg-white rounded" style = "width: 18rem;">
       <img src="${motobike.image_url}" class="card-img-top" alt="Image">
       <div class="card-body">
         <h2 class="card-title">${motobike.name}</h2>
@@ -110,67 +64,22 @@ function formatCash(str) {
   );
 }
 
-$("#search").on("keyup", function () {
-  var value = $(this).val().toLowerCase();
-  var rs = motobikes.filter((motobike) =>
-    motobike.name.toLowerCase().includes(value)
-  );
-  Render.cards(rs);
-});
-
-$("#min-price").on("keyup", function () {
+$("#search-btn").on("click", function () {
   var name = $("#search").val().toLowerCase();
-  var rs = motobikes;
-  if (name) {
-    rs = motobikes.filter((motobike) =>
-      motobike.name.toLowerCase().includes(name)
-    );
-  }
-
-  var min_price = parseInt($(this).val() + "000000");
-  if (isNaN(min_price) || min_price == 0) {
-    Render.cards(rs);
-    return;
-  }
-  var max_price = parseInt($("#max-price").val() + "000000");
-  if (isNaN(max_price) || max_price == 0) {
-    rs = rs.filter((motobike) => motobike.price >= min_price);
-    Render.cards(rs);
-  } else {
-    var rs = rs.filter(
-      (motobike) =>
-        motobike.price >= min_price && motobike.price <= max_price
-    );
-    Render.cards(rs);
-  }
-});
-
-$("#max-price").on("keyup", function () {
-  var name = $("#search").val().toLowerCase();
-  var rs = motobikes;
-  if (name) {
-    rs = motobikes.filter((motobike) =>
-      motobike.name.toLowerCase().includes(name)
-    );
-  }
-
-  var max_price = parseInt($(this).val() + "000000");
-  if (isNaN(max_price) || max_price == 0) {
-    Render.cards(rs);
-    return;
-  }
   var min_price = parseInt($("#min-price").val() + "000000");
-  if (isNaN(min_price) || min_price == 0) {
-    var rs = rs.filter((motobike) => motobike.price <= max_price);
-    Render.cards(rs);
-  } else {
-    var rs = rs.filter(
-      (motobike) =>
-        motobike.price >= min_price && motobike.price <= max_price
-    );
-    Render.cards(rs);
-  }
+  var max_price = parseInt($("#max-price").val() + "000000");
+  var motobikes = [];
+  $.ajax({
+    url: 'http://127.0.0.1:5000/api/search?name=' + name + '&min_price=' + min_price + '&max_price=' + max_price,
+    success: function (data) {
+      data.forEach(function (dat) {
+        motobikes.push(dat);
+      });
+    },
+    async: false
+  });
+  Render.cards(motobikes);
 });
 
-var [categories, motobikes] = Render.init();
+var motobikes = Render.init();
 Render.cards(motobikes);
